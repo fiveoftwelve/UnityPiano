@@ -1,24 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-
 public class Keyboard : MonoBehaviour
 {
+    public SoundGen soundGenerator;
     public GameObject blackTile, whiteTile; 
     public GameObject content;
-
     public int numberOfOctaves;
+    public int lowestNote = 35;
+    public bool playSound = false;
     // Start is called before the first frame update
     void Start()
     {
-        int startNote = 24;
+        int startNote = lowestNote;
         for (int i = 0; i < numberOfOctaves; i++)
         {
             createOctave(startNote+i*12, i);
         }
     }
-
 
     private void createOctave(int startNote, int octave){
         float width = content.GetComponent<RectTransform>().rect.width;
@@ -52,10 +50,6 @@ public class Keyboard : MonoBehaviour
             }
             note.GetComponent<RectTransform>().anchoredPosition3D = new Vector3(widthPerOctave*octave+widthPerNote*blackIndex+widthPerNote, -blackTile.GetComponent<RectTransform>().rect.height/2, 0);
         }
-        
-        
-        
-
     }
 
     private void registerEvents(GameObject note){
@@ -72,16 +66,18 @@ public class Keyboard : MonoBehaviour
     }
 
     public void keyOn(int midiNumber){
-        Debug.Log("Clicked " + midiNumber); 
-        GameObject.Find("SoundGen").GetComponent<SoundGen>().OnKey(midiNumber);
+        Debug.Log("Clicked " + midiNumber);
+        if (playSound && soundGenerator != null ){
+            soundGenerator.OnKey(midiNumber);
+        }
     }
 
     public void keyOff(int midiNumber){
         Debug.Log("Released " + midiNumber);
-        GameObject.Find("SoundGen").GetComponent<SoundGen>().onKeyOff(midiNumber);
+        if (playSound && soundGenerator != null ){
+            soundGenerator.onKeyOff(midiNumber);
+        }
     }
-
-
 
     private GameObject instantiateNote(GameObject note, int actualNoteIndex, int startNote){
         GameObject newNote = Instantiate(note);
